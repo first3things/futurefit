@@ -1,6 +1,6 @@
 // 3v3 Matchday Planner — service worker
 // Bump CACHE when any precached asset changes so clients pick up the new version.
-var CACHE = 'ff-3v3-v1';
+var CACHE = 'ff-3v3-v3';
 var SHELL = [
   './',
   './index.html',
@@ -58,4 +58,17 @@ self.addEventListener('fetch', function (e) {
 
   // Cross-origin (e.g. web fonts): network-first, fall back to cache if present.
   e.respondWith(fetch(req).catch(function () { return caches.match(req); }));
+});
+
+// Tapping the end-of-game notification focuses the app (or opens it).
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        if ('focus' in list[i]) return list[i].focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow('./');
+    })
+  );
 });

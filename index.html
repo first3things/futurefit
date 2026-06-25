@@ -609,11 +609,32 @@ function calcGameTime(pitches) {
 var timer = {
   duration: 8 * 60,   // seconds — updated when game time is calculated
   remaining: 8 * 60,
+  endTime: 0,         // absolute ms timestamp when the timer hits 0 — timekeeping survives backgrounding
   running: false,
   interval: null,
   ctx: null           // AudioContext, created on first user interaction
-
 };
+
+// Seconds left, derived from the absolute end-time so the clock stays correct
+// even if the tab was suspended or throttled while in the background.
+function remainingSecs() {
+  return Math.max(0, Math.ceil((timer.endTime - Date.now()) / 1000));
+}
+
+// Screen Wake Lock — keeps the screen on (and the timer ticking) while a game is
+// running and the app is in the foreground. The OS auto-releases it when the page
+// is hidden, so we re-acquire it on return (see timerResync below).
+var wakeLock = null;
+function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && document.visibilityState === 'visible') {
+      navigator.wakeLock.request('screen').then(function (wl) { wakeLock = wl; }).catch(function () {});
+    }
+  } catch (e) {}
+}
+function releaseWakeLock() {
+  try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {}
+}
 
 function timerFmt(secs) {
   var m = Math.floor(secs / 60);
@@ -746,33 +767,77 @@ function whistleSound() {
   } catch(e) {}
 }
 
+// Best-effort end-of-game notification. Fires when the timer reaches zero while
+// JS is running — live in the foreground, or the moment you return to a
+// backgrounded app (the web can't guarantee an on-time alert while suspended).
+function maybeAskNotify() {
+  try {
+    if ('Notification' in window && Notification.permission === 'default') {
+      var r = Notification.requestPermission();
+      if (r && r.catch) r.catch(function () {});
+    }
+  } catch (e) {}
+}
+function notifyComplete() {
+  try {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    var opts = {
+      body: 'Full time — rotate the teams.',
+      icon: 'icon-192.png', badge: 'icon-192.png',
+      tag: 'ff-timer', renotify: true, vibrate: [200, 100, 200]
+    };
+    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+      navigator.serviceWorker.ready
+        .then(function (reg) { reg.showNotification('Time! Game over', opts); })
+        .catch(function () { try { new Notification('Time! Game over', opts); } catch (e) {} });
+    } else {
+      try { new Notification('Time! Game over', opts); } catch (e) {}
+    }
+  } catch (e) {}
+}
+
+// One tick: recompute from the end-time, update the UI, finish at zero.
+// Called by the interval AND whenever the app regains focus, so returning from
+// the background instantly resyncs (and fires the whistle if it ended while away).
+function timerTick() {
+  if (!timer.running) return;
+  timer.remaining = remainingSecs();
+  if (timer.remaining <= 0) {
+    timer.remaining = 0;
+    timer.running = false;
+    clearInterval(timer.interval);
+    releaseWakeLock();
+    timerUpdateUI();
+    whistleSound();
+    notifyComplete();
+    if (window._logEvent && window._analytics) {
+      window._logEvent(window._analytics, 'timer_complete', { duration_mins: Math.round(timer.duration / 60) });
+    }
+    return;
+  }
+  timerUpdateUI();
+}
+
 function timerStart() {
   // Initialise AudioContext on user gesture (required by browsers)
   if (!timer.ctx) {
     try { timer.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
   }
+  maybeAskNotify();
   if (timer.remaining <= 0) timerReset();
+  timer.endTime = Date.now() + timer.remaining * 1000;   // anchor to an absolute time
   timer.running = true;
-  timer.interval = setInterval(function() {
-    timer.remaining = Math.max(0, timer.remaining - 1);
-    timerUpdateUI();
-    if (timer.remaining === 0) {
-      timer.running = false;
-      clearInterval(timer.interval);
-      whistleSound();
-      // Vibrate on mobile if available
-      timerUpdateUI();
-      if (window._logEvent && window._analytics) {
-        window._logEvent(window._analytics, 'timer_complete', { duration_mins: Math.round(timer.duration / 60) });
-      }
-    }
-  }, 1000);
+  clearInterval(timer.interval);
+  timer.interval = setInterval(timerTick, 250);
+  requestWakeLock();
   timerUpdateUI();
 }
 
 function timerPause() {
+  if (timer.running && timer.endTime) timer.remaining = remainingSecs();   // freeze accurately
   timer.running = false;
   clearInterval(timer.interval);
+  releaseWakeLock();
   timerUpdateUI();
 }
 
@@ -783,9 +848,23 @@ function timerToggle() {
 function timerReset() {
   timer.running = false;
   clearInterval(timer.interval);
+  timer.endTime = 0;
   timer.remaining = timer.duration;
+  releaseWakeLock();
   timerUpdateUI();
 }
+
+// Returning to the app (tab focus, screen unlock, app-switch back): resync the
+// clock and re-acquire the wake lock if a game is still running.
+function timerResync() {
+  if (document.visibilityState === 'visible' && timer.running) {
+    timerTick();
+    if (timer.running) requestWakeLock();
+  }
+}
+document.addEventListener('visibilitychange', timerResync);
+window.addEventListener('pageshow', timerResync);
+window.addEventListener('focus', timerResync);
 
 function timerSetDuration(mins) {
   var wasRunning = timer.running;
