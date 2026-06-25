@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>3v3 Matchday Planner | Pitches &amp; Teams for FA FutureFit Football</title>
 <meta name="description" content="Free 3v3 matchday planner for FA FutureFit U7 football. Enter how many players each team brings and instantly see how many pitches you need and how every Home v Away game lines up — no substitutes, everyone plays.">
@@ -11,6 +11,11 @@
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#e3132e">
 <link rel="canonical" href="https://first3things.github.io/futurefit/">
+
+<!-- PWA manifest (add manifest.json separately for Capacitor) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FutureFit">
 
 <!-- Open Graph / social sharing -->
 <meta property="og:type" content="website">
@@ -30,6 +35,46 @@
 <meta name="twitter:description" content="Work out your pitches and Home v Away team line-ups for FA FutureFit 3v3 football in seconds. No substitutes — everyone plays.">
 <meta name="twitter:image" content="https://first3things.github.io/futurefit/social-share.png">
 
+<!-- Firebase Analytics -->
+<!-- REPLACE config values below with your Firebase project settings -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAnalytics, logEvent, setUserProperties } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js';
+
+  // ⚙️ REPLACE WITH YOUR FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "G-XXXXXXXXXX"
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    // Track app open
+    logEvent(analytics, 'app_open');
+
+    // Expose analytics to global scope for use in main script
+    window._analytics = analytics;
+    window._logEvent = logEvent;
+
+    // Track platform
+    setUserProperties(analytics, {
+      platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'ios' :
+                /Android/.test(navigator.userAgent) ? 'android' : 'web'
+    });
+  } catch(e) {
+    // Analytics failed silently — app still works offline
+    window._analytics = null;
+    window._logEvent = function(){};
+  }
+</script>
+
 <!-- Structured data -->
 <script type="application/ld+json">
 {
@@ -43,114 +88,249 @@
   "url": "https://first3things.github.io/futurefit/",
   "inLanguage": "en-GB",
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "GBP"
-  },
-  "author": {
-    "@type": "Organization",
-    "name": "First Three Things",
-    "url": "https://www.ftt.ai"
-  },
-  "about": {
-    "@type": "Thing",
-    "name": "FA FutureFit 3v3 youth football"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+  "author": { "@type": "Organization", "name": "First Three Things", "url": "https://www.ftt.ai" },
+  "about": { "@type": "Thing", "name": "FA FutureFit 3v3 youth football" }
 }
 </script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap');
   :root{
     --red:#e3132e;--red-dk:#b80d23;--navy:#11173f;--blue:#2b57ac;
     --clubA:#e3132e;--clubB:#2b57ac;--star:#f5a623;--ink:#11173f;--grey:#5a627d;
     --line:#e4e7f0;--bg:#f5f6fa;--white:#ffffff;--pitch:#217a3a;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Barlow',sans-serif;color:var(--ink);min-height:100vh;padding:0 0 70px;background-color:#f5f6fa;touch-action:manipulation}
+  body{font-family:'Barlow',sans-serif;color:var(--ink);min-height:100vh;
+       padding:0 0 calc(80px + var(--safe-bottom));background-color:#f5f6fa;touch-action:manipulation}
   .wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:0 20px}
   .topband{height:8px;width:100%;background:var(--red)}
   header{padding:40px 0 4px}
-  .kicker{display:inline-block;background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;padding:5px 12px;border-radius:4px;margin-bottom:16px}
-  h1{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(2.6rem,8vw,4.2rem);line-height:.92;text-transform:uppercase;letter-spacing:-.005em;color:var(--navy)}
+  .kicker{display:inline-block;background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;
+          font-weight:700;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;
+          padding:5px 12px;border-radius:4px;margin-bottom:16px}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:800;
+     font-size:clamp(2.6rem,8vw,4.2rem);line-height:.92;text-transform:uppercase;
+     letter-spacing:-.005em;color:var(--navy)}
   h1 .accent{color:var(--red)}
   .sub{font-size:1.04rem;max-width:54ch;color:var(--grey);line-height:1.5;margin-top:14px;font-weight:500}
   .controls{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0}
   @media(max-width:540px){.controls{grid-template-columns:1fr}}
-  .field{background:var(--white);border-radius:12px;padding:20px 20px 18px;border:2px solid var(--navy);box-shadow:none;position:relative;overflow:hidden}
+  .field{background:var(--white);border-radius:12px;padding:20px 20px 18px;border:2px solid var(--navy);
+         position:relative;overflow:hidden}
   .field::before{content:"";position:absolute;top:0;left:0;width:100%;height:8px}
   .field.a::before{background:var(--clubA)}
   .field.b::before{background:var(--clubB)}
-  .field label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+  .field label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+               font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
   .field.a label{color:var(--clubA)}
   .field.b label{color:var(--clubB)}
   .countrow{display:flex;align-items:center;gap:12px}
-  .countrow input[type=number]{width:100%;border:none;background:transparent;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:3rem;color:var(--navy);-moz-appearance:textfield;line-height:1}
+  .countrow input[type=number]{width:100%;border:none;background:transparent;
+    font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:3rem;
+    color:var(--navy);-moz-appearance:textfield;line-height:1}
   .countrow input::-webkit-outer-spin-button,.countrow input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .countrow input:focus{outline:none}
   .stepper{display:flex;gap:7px}
-  .stepper button{width:42px;height:42px;border:none;border-radius:10px;background:var(--navy);color:#fff;font-size:1.4rem;font-weight:700;cursor:pointer;display:grid;place-items:center;line-height:1;transition:background .14s,transform .05s;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+  .stepper button{width:42px;height:42px;border:none;border-radius:10px;background:var(--navy);
+    color:#fff;font-size:1.4rem;font-weight:700;cursor:pointer;display:grid;place-items:center;
+    line-height:1;transition:background .14s,transform .05s;touch-action:manipulation;
+    -webkit-user-select:none;user-select:none}
   .stepper button:hover{background:var(--blue)}
   .stepper button:active{transform:scale(.92)}
+
+  /* Team name inputs */
+  .team-name-row{display:flex;gap:10px;margin-bottom:8px;align-items:center}
+  .team-name-input{flex:1;font-family:'Barlow',sans-serif;font-weight:600;font-size:.9rem;
+    border:none;border-bottom:2px solid var(--line);background:transparent;color:var(--ink);
+    padding:4px 2px;transition:border-color .14s}
+  .team-name-input:focus{outline:none;border-bottom-color:var(--blue)}
+  .team-name-input.a:focus{border-bottom-color:var(--clubA)}
+  .team-name-input.b:focus{border-bottom-color:var(--clubB)}
+
   .result{margin-top:30px}
-  .hero{background:var(--red);background-image:radial-gradient(circle at 88% -25%, rgba(255,255,255,.14) 0%, transparent 55%),repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 44px, rgba(255,255,255,.0) 44px 88px);border-radius:14px;color:#fff;padding:30px 28px;position:relative;overflow:hidden;box-shadow:none}
-  .hero::before{content:"";position:absolute;top:50%;right:8%;width:160px;height:160px;transform:translateY(-50%);border:3px solid rgba(255,255,255,.16);border-radius:50%;pointer-events:none;box-shadow:inset 0 0 0 70px transparent}
-  .hero::after{content:"";position:absolute;top:0;right:calc(8% + 80px);width:3px;height:100%;background:rgba(255,255,255,.16);pointer-events:none}
+  .hero{background:var(--red);background-image:radial-gradient(circle at 88% -25%, rgba(255,255,255,.14) 0%, transparent 55%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 44px, rgba(255,255,255,.0) 44px 88px);
+        border-radius:14px;color:#fff;padding:30px 28px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:50%;right:8%;width:160px;height:160px;
+    transform:translateY(-50%);border:3px solid rgba(255,255,255,.16);border-radius:50%;pointer-events:none}
+  .hero::after{content:"";position:absolute;top:0;right:calc(8% + 80px);width:3px;
+    height:100%;background:rgba(255,255,255,.16);pointer-events:none}
   .pitchcount{display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:relative;z-index:1}
-  .bignum{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(3.6rem,16vw,6rem);line-height:.8;color:#fff}
-  .pitchlabel{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.7rem;line-height:.95;text-transform:uppercase;letter-spacing:.01em;color:#fff}
+  .bignum{font-family:'Barlow Condensed',sans-serif;font-weight:800;
+          font-size:clamp(3.6rem,16vw,6rem);line-height:.8;color:#fff}
+  .pitchlabel{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.7rem;
+              line-height:.95;text-transform:uppercase;letter-spacing:.01em;color:#fff}
   .pitchlabel .l2{color:#fff;display:block;font-size:1.1rem;opacity:.85;font-weight:600}
-  .pitchsize{position:relative;margin-top:14px;font-size:.95rem;color:rgba(255,255,255,.92);font-weight:500;line-height:1.4}
-  .pitchsize strong{font-family:'Barlow Condensed';font-weight:800;font-size:1.05rem;color:#fff;letter-spacing:.02em}
-  .psize-range{color:rgba(255,255,255,.6);font-size:.85rem}
   .meta{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
-  .chip{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);border-radius:8px;padding:7px 13px;font-size:.85rem;font-weight:600}
+  .chip{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);
+        border-radius:8px;padding:7px 13px;font-size:.85rem;font-weight:600}
   .chip b{font-family:'Barlow Condensed';font-weight:800;font-size:1.05rem;margin-right:3px}
-  h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;margin:32px 0 14px;color:var(--red)}
+
+  /* Share button inside hero */
+  .share-btn{display:inline-flex;align-items:center;gap:7px;margin-top:18px;
+    background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);
+    color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:.9rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:9px 16px;border-radius:9px;cursor:pointer;transition:background .14s;
+    position:relative;z-index:1}
+  .share-btn:hover{background:rgba(255,255,255,.3)}
+  .share-btn:active{transform:scale(.96)}
+  .share-btn svg{width:16px;height:16px;flex-shrink:0}
+
+  /* Toast */
+  .toast{position:fixed;bottom:calc(90px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--navy);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:.95rem;letter-spacing:.06em;padding:12px 22px;border-radius:10px;
+    opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:100}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;
+     letter-spacing:.14em;text-transform:uppercase;margin:32px 0 14px;color:var(--red)}
   .pitches{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:540px){.pitches{grid-template-columns:1fr}}
-  .pitch{background:var(--white);border:2px solid var(--navy);border-radius:12px;overflow:hidden;box-shadow:none}
-  .pitchhead{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#217a3a;background-image:repeating-linear-gradient(90deg,#217a3a 0 22px,#1e7035 22px 44px);color:#fff}
+  .pitch{background:var(--white);border:2px solid var(--navy);border-radius:12px;overflow:hidden}
+  .pitchhead{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+    background:#217a3a;background-image:repeating-linear-gradient(90deg,#217a3a 0 22px,#1e7035 22px 44px);color:#fff}
   .pitchhead .pno{font-family:'Barlow Condensed';font-weight:800;font-size:1rem;letter-spacing:.08em;text-transform:uppercase}
-  .pitchhead .fmt{font-family:'Barlow Condensed';font-weight:700;font-size:.95rem;background:rgba(255,255,255,.2);padding:2px 10px;border-radius:20px}
+  .pitchhead .fmt{font-family:'Barlow Condensed';font-weight:700;font-size:.95rem;
+                  background:rgba(255,255,255,.2);padding:2px 10px;border-radius:20px}
   .pitchbody{display:flex;align-items:center;gap:10px;padding:16px 14px}
   .team{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px}
   .team .pips{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
   .vs{font-family:'Barlow Condensed';font-weight:800;color:var(--grey);font-size:1.05rem}
-  .pip{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-weight:700;color:#fff;font-family:'Barlow Condensed'}
+  .pip{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+       font-size:.7rem;font-weight:700;color:#fff;font-family:'Barlow Condensed'}
   .pip.A{background:var(--clubA)}
   .pip.B{background:var(--clubB)}
   .tlabel{font-size:.7rem;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:.05em}
-  .star-tag{display:inline-block;margin-top:3px;background:var(--star);color:var(--navy);font-family:'Barlow Condensed';font-weight:800;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:20px}
+  .star-tag{display:inline-block;margin-top:3px;background:var(--star);color:var(--navy);
+            font-family:'Barlow Condensed';font-weight:800;font-size:.6rem;letter-spacing:.08em;
+            text-transform:uppercase;padding:2px 7px;border-radius:20px}
   .pitch.tiny .pitchhead{background:#9c660a;background-image:repeating-linear-gradient(90deg,#9c660a 0 22px,#8c5b09 22px 44px)}
-  .note{margin-top:26px;background:#eef1fb;border-left:4px solid var(--blue);border-radius:0 12px 12px 0;padding:16px 18px;font-size:.92rem;color:#3a4266;line-height:1.55}
+  .note{margin-top:26px;background:#eef1fb;border-left:4px solid var(--blue);
+        border-radius:0 12px 12px 0;padding:16px 18px;font-size:.92rem;color:#3a4266;line-height:1.55}
   .note strong{color:var(--navy)}
   .note.tiny-note{background:#fff6e6;border-left-color:var(--star)}
-  .warn{background:#fdeaec;border:1px solid var(--red);color:var(--red-dk);border-radius:14px;padding:18px 20px;font-size:.96rem;font-weight:600}
+  .warn{background:#fdeaec;border:1px solid var(--red);color:var(--red-dk);
+        border-radius:14px;padding:18px 20px;font-size:.96rem;font-weight:600}
   footer{margin-top:40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
-  .ff-link{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--red);text-decoration:none;padding:10px 18px;border-radius:8px;transition:background .14s}
+  .ff-link{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--red);
+    text-decoration:none;padding:10px 18px;border-radius:8px;transition:background .14s}
   .ff-link:hover{background:var(--red-dk)}
   .ff-link:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
   .ff-tag{font-family:'Barlow Condensed';font-weight:600;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:#9aa0b8}
   .built-by{font-size:.78rem;color:#9aa0b8;font-weight:500}
   .built-by a{color:var(--red);text-decoration:none;font-weight:700}
   .built-by a:hover{text-decoration:underline}
-  .built-by a:focus-visible{outline:3px solid var(--navy);outline-offset:2px;border-radius:3px}
 
-  /* a11y + polish additions */
+  /* Usage stats banner */
+  .usage-bar{background:var(--white);border:2px solid var(--line);border-radius:12px;
+    padding:14px 18px;margin-top:28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .usage-stat{display:flex;flex-direction:column;gap:1px}
+  .usage-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:var(--navy);line-height:1}
+  .usage-lbl{font-size:.72rem;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:.08em}
+  .usage-divider{width:1px;height:36px;background:var(--line);flex-shrink:0}
+
+  /* a11y */
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px}
   .countrow input:focus-visible{outline-offset:4px}
-  .tinyflag{font-family:'Barlow Condensed';font-weight:700;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.22);padding:2px 8px;border-radius:20px;margin-right:auto}
+
+  .controls-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.15rem;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin:34px 0 12px}
+  .lbl-unit{font-family:'Barlow',sans-serif;font-weight:600;letter-spacing:0;
+            text-transform:none;color:var(--grey);font-size:.78rem}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;font-size:.95rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+  .eyebrow-fmt{display:inline-flex;align-items:baseline;gap:2px;background:var(--red);color:#fff;
+    font-weight:800;letter-spacing:.02em;padding:3px 9px;border-radius:6px;font-size:.95rem}
+  .eyebrow-fmt em{font-style:normal;font-size:.78em;opacity:.9;padding:0 1px}
+  .title{font-family:'Barlow Condensed',sans-serif;font-weight:800;
+    font-size:clamp(2.8rem,9vw,4.6rem);line-height:.9;text-transform:uppercase;letter-spacing:-.01em;color:var(--red)}
+  .title .accent{color:var(--navy)}
+  .lead{font-size:1.12rem;max-width:50ch;color:var(--ink);line-height:1.5;margin-top:16px;font-weight:500}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+  .fact{background:var(--white);border:2px solid var(--navy);border-radius:12px;padding:14px 14px 12px;
+        display:flex;flex-direction:column;gap:2px}
+  .fact-k{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;
+           letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+  .fact-v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.45rem;color:var(--navy);line-height:1}
+  .fact-s{font-size:.78rem;color:var(--grey);font-weight:500}
+
+  /* ── Game time calculator ── */
+  .gametime-card{background:var(--navy);border-radius:14px;padding:24px 24px 20px;margin-top:14px;color:#fff}
+  .gametime-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .gametime-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;
+    letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+  .gametime-rec{display:flex;align-items:baseline;gap:8px}
+  .gametime-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;
+    font-size:clamp(2.6rem,10vw,3.8rem);line-height:.85;color:#fff}
+  .gametime-unit{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;
+    opacity:.7;text-transform:uppercase;letter-spacing:.08em}
+  .gametime-range{font-size:.82rem;opacity:.6;font-weight:500;margin-top:6px;margin-bottom:16px}
+  .gametime-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .gametime-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+    border-radius:7px;padding:5px 11px;font-size:.8rem;font-weight:600}
+  .gametime-chip b{font-family:'Barlow Condensed';font-weight:800;font-size:.95rem;margin-right:2px}
+  .gametime-warn{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.35);
+    border-radius:8px;padding:10px 14px;font-size:.82rem;color:rgba(255,255,255,.85);
+    font-weight:500;line-height:1.4;margin-bottom:18px}
+  .gametime-warn strong{color:var(--star)}
+
+  /* ── Countdown timer ── */
+  .timer-section{border-top:1px solid rgba(255,255,255,.12);padding-top:18px}
+  .timer-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;
+    letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin-bottom:10px}
+  .timer-display{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .timer-face{font-family:'Barlow Condensed',sans-serif;font-weight:800;
+    font-size:clamp(3rem,12vw,4.8rem);line-height:1;color:#fff;letter-spacing:.04em;
+    min-width:5ch;transition:color .3s}
+  .timer-face.warning{color:var(--star)}
+  .timer-face.danger{color:#ff6b6b;animation:pulse 0.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .timer-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .timer-btn{height:44px;padding:0 18px;border:none;border-radius:10px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.9rem;
+    letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+    transition:background .14s,transform .05s;touch-action:manipulation;
+    display:inline-flex;align-items:center;gap:7px}
+  .timer-btn:active{transform:scale(.94)}
+  .timer-btn.start{background:var(--red);color:#fff}
+  .timer-btn.start:hover{background:var(--red-dk)}
+  .timer-btn.pause{background:var(--star);color:var(--navy)}
+  .timer-btn.reset{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}
+  .timer-btn.reset:hover{background:rgba(255,255,255,.2)}
+  .timer-btn svg{width:15px;height:15px;flex-shrink:0}
+  .timer-adj{display:flex;gap:6px;align-items:center;margin-top:12px}
+  .timer-adj-label{font-size:.75rem;opacity:.55;font-weight:600;text-transform:uppercase;
+    letter-spacing:.08em;font-family:'Barlow Condensed';white-space:nowrap}
+  .timer-adj-btn{width:34px;height:34px;border:none;border-radius:8px;
+    background:rgba(255,255,255,.1);color:#fff;font-size:1.1rem;font-weight:700;
+    cursor:pointer;display:grid;place-items:center;transition:background .12s;
+    font-family:'Barlow Condensed';touch-action:manipulation}
+  .timer-adj-btn:hover{background:rgba(255,255,255,.2)}
+  .timer-adj-val{font-family:'Barlow Condensed';font-weight:800;font-size:1rem;
+    min-width:3ch;text-align:center;color:#fff}
+  .timer-progress{width:100%;height:5px;background:rgba(255,255,255,.12);
+    border-radius:3px;margin-top:14px;overflow:hidden}
+  .timer-progress-bar{height:100%;background:var(--red);border-radius:3px;
+    transition:width .9s linear,background .3s}
+  .timer-progress-bar.warning{background:var(--star)}
+  .timer-progress-bar.danger{background:#ff6b6b}
+
   @media(prefers-reduced-motion:reduce){
     *{transition:none !important;animation:none !important}
-    .teamline:hover,.pitch:hover{border-color:var(--blue)}
+    .timer-face.danger{animation:none}
   }
   @media print{
     body{background:#fff;padding:0}
-    .topband,.stepper,.controls{display:none !important}
+    .topband,.stepper,.controls,.share-btn,.usage-bar{display:none !important}
     .ff-link{background:none !important;color:var(--navy) !important;padding:0;text-decoration:underline}
-    .hero{background:#fff !important;color:var(--navy);box-shadow:none;border:2px solid var(--navy)}
+    .hero{background:#fff !important;color:var(--navy);border:2px solid var(--navy)}
     .hero::before{display:none}
     .bignum,.pitchlabel{color:var(--navy) !important}
     .pitchhead{background:#eee !important;color:var(--navy) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -159,23 +339,6 @@
     .pip{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .note{break-inside:avoid}
   }
-  .controls-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin:34px 0 12px}
-  .lbl-unit{font-family:'Barlow',sans-serif;font-weight:600;letter-spacing:0;text-transform:none;color:var(--grey);font-size:.78rem}
-
-  /* FutureFit hero treatment */
-  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
-  .eyebrow-fmt{display:inline-flex;align-items:baseline;gap:2px;background:var(--red);color:#fff;font-weight:800;letter-spacing:.02em;padding:3px 9px;border-radius:6px;font-size:.95rem}
-  .eyebrow-fmt em{font-style:normal;font-size:.78em;opacity:.9;padding:0 1px}
-  .title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(2.8rem,9vw,4.6rem);line-height:.9;text-transform:uppercase;letter-spacing:-.01em;color:var(--red)}
-  .title .accent{color:var(--navy)}
-  .lead{font-size:1.12rem;max-width:50ch;color:var(--ink);line-height:1.5;margin-top:16px;font-weight:500}
-
-  /* 3v3 essentials facts strip */
-  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
-  .fact{background:var(--white);border:2px solid var(--navy);border-radius:12px;padding:14px 14px 12px;box-shadow:none;display:flex;flex-direction:column;gap:2px}
-  .fact-k{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
-  .fact-v{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.45rem;color:var(--navy);line-height:1}
-  .fact-s{font-size:.78rem;color:var(--grey);font-weight:500}
 </style>
 </head>
 <body>
@@ -186,10 +349,14 @@
     <h1 class="title">Matchday <span class="accent">Planner</span></h1>
     <p class="lead">Every child plays. Enter how many players for each team and see how many pitches you need — and exactly how every game lines up.</p>
   </header>
+
   <h2 class="controls-title">How many players?</h2>
   <div class="controls">
     <div class="field a">
       <label for="inA">Home Team</label>
+      <div class="team-name-row">
+        <input type="text" class="team-name-input a" id="nameA" placeholder="Home team name" maxlength="30" aria-label="Home team name">
+      </div>
       <div class="countrow">
         <input type="number" id="inA" min="0" max="200" value="12" inputmode="numeric" aria-label="Number of Home Team players">
         <div class="stepper">
@@ -200,6 +367,9 @@
     </div>
     <div class="field b">
       <label for="inB">Away Team</label>
+      <div class="team-name-row">
+        <input type="text" class="team-name-input b" id="nameB" placeholder="Away team name" maxlength="30" aria-label="Away team name">
+      </div>
       <div class="countrow">
         <input type="number" id="inB" min="0" max="200" value="12" inputmode="numeric" aria-label="Number of Away Team players">
         <div class="stepper">
@@ -209,14 +379,20 @@
       </div>
     </div>
   </div>
+
   <div class="result" id="result" role="region" aria-live="polite" aria-atomic="true" aria-label="Matchday plan results"></div>
+
   <footer>
     <a class="ff-link" href="https://futurefit.englandfootball.com/futurefit/a-closer-look-at-3v3/index.html" target="_blank" rel="noopener noreferrer">A closer look at 3v3 &rarr;</a>
     <span class="ff-tag">FA FutureFit principles · everyone plays all the time</span>
     <span class="built-by">Built by <a href="https://www.ftt.ai" target="_blank" rel="noopener noreferrer">First Three Things</a></span>
   </footer>
 </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
+// ─── Core solver (unchanged from v1) ───────────────────────────────────────
 var GAME=[ [[3,3],6],[[3,2],5],[[2,2],4],[[3,1],4],[[2,1],3],[[1,1],2] ];
 function lex(x,y){for(var i=0;i<x.length;i++){if(x[i]!==y[i])return x[i]<y[i]?-1:1;}return 0;}
 function solve(A,B){
@@ -301,70 +477,560 @@ function pips(side){
   return s;
 }
 function teamBlock(side){
-  var isStarLocal=(side.h>0&&side.a>0);
-  var isStar=isStarLocal;
+  var isStar=(side.h>0&&side.a>0);
   var srt=(isStar?(side.h+' Home + '+side.a+' Away'):(side.size+' '+(side.h>0?'Home':'Away')))+' player'+(side.size>1?'s':'');
   return '<div class="team"><span class="sr-only">'+srt+'</span><div class="pips" aria-hidden="true">'+pips(side)+'</div>'+
          (isStar?'<span class="star-tag">Superstar</span>':'<span class="tlabel">'+(side.h>0?'Home':'Away')+'</span>')+'</div>';
 }
 function fmtName(g){ return g.sides[0].size+'v'+g.sides[1].size; }
-function isTiny(g){ var a=g.sides[0].size,b=g.sides[1].size; var mx=Math.max(a,b),mn=Math.min(a,b);
-  return (mx<=2&&mn<=1)|| (a===1&&b===1) || (a+b<=3); }
-function render(){
-  var A=Math.max(0,parseInt(document.getElementById('inA').value||0,10));
-  var B=Math.max(0,parseInt(document.getElementById('inB').value||0,10));
-  var total=A+B,el=document.getElementById('result');
-  if(total<2){el.innerHTML='<div class="warn" role="status">Add at least <strong>2 players</strong> in total to build a matchday plan.</div>';return;}
-  var b=buildPitches(A,B);
-  if(!b){el.innerHTML='<div class="warn">No valid arrangement for '+total+' players. Try adding or removing a player.</div>';return;}
-  var pitches=b.games.length, stars=b.mixed;
-  var tiny=b.games.filter(isTiny).length;
-  var notFull=b.games.filter(function(g){return !(g.sides[0].size===3&&g.sides[1].size===3);}).length;
+function isTiny(g){ var a=g.sides[0].size,b=g.sides[1].size;
+  return (Math.max(a,b)<=2&&Math.min(a,b)<=1)|| (a===1&&b===1) || (a+b<=3); }
 
-  var cards='';
-  b.games.forEach(function(g,i){
-    var tny=isTiny(g);
-    var fmt=fmtName(g);
-    var srText='Pitch '+(i+1)+', '+g.sides[0].size+' versus '+g.sides[1].size+(tny?', smaller game':'')+'.';
-    cards+='<div class="pitch'+(tny?' tiny':'')+'" role="group" aria-label="'+srText+'">'+
-      '<div class="pitchhead"><span class="pno">Pitch '+(i+1)+'</span>'+
-        '<span class="fmt">'+(tny?'<span class="fmt-ic" aria-hidden="true">&#9650;</span> ':'')+fmt+'</span></div>'+
-      '<div class="pitchbody">'+teamBlock(g.sides[0])+'<span class="vs" aria-hidden="true">v</span>'+teamBlock(g.sides[1])+'</div></div>';
+// ─── Persistence ───────────────────────────────────────────────────────────
+var STORAGE_KEY = 'ff_planner_v1';
+
+function saveState() {
+  try {
+    var state = {
+      a: document.getElementById('inA').value,
+      b: document.getElementById('inB').value,
+      nameA: document.getElementById('nameA').value,
+      nameB: document.getElementById('nameB').value,
+      ts: Date.now()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var state = JSON.parse(raw);
+    if (state.a !== undefined) document.getElementById('inA').value = state.a;
+    if (state.b !== undefined) document.getElementById('inB').value = state.b;
+    if (state.nameA) document.getElementById('nameA').value = state.nameA;
+    if (state.nameB) document.getElementById('nameB').value = state.nameB;
+  } catch(e) {}
+}
+
+// ─── Usage tracking ─────────────────────────────────────────────────────────
+var USAGE_KEY = 'ff_usage_v1';
+
+function getUsage() {
+  try {
+    var raw = localStorage.getItem(USAGE_KEY);
+    return raw ? JSON.parse(raw) : { sessions: 0, plans: 0, firstSeen: null, lastSeen: null };
+  } catch(e) {
+    return { sessions: 0, plans: 0, firstSeen: null, lastSeen: null };
+  }
+}
+
+function saveUsage(u) {
+  try { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); } catch(e) {}
+}
+
+function trackSession() {
+  var u = getUsage();
+  u.sessions = (u.sessions || 0) + 1;
+  u.firstSeen = u.firstSeen || new Date().toISOString();
+  u.lastSeen = new Date().toISOString();
+  saveUsage(u);
+
+  // Fire to Firebase if available
+  if (window._logEvent && window._analytics) {
+    window._logEvent(window._analytics, 'session_start', { sessions_total: u.sessions });
+  }
+}
+
+function trackPlan(A, B, pitches, stars) {
+  var u = getUsage();
+  u.plans = (u.plans || 0) + 1;
+  saveUsage(u);
+
+  // Fire to Firebase if available
+  if (window._logEvent && window._analytics) {
+    window._logEvent(window._analytics, 'plan_generated', {
+      home_players: A,
+      away_players: B,
+      total_players: A + B,
+      pitches_needed: pitches,
+      superstar_teams: stars
+    });
+  }
+}
+
+function trackShare(method) {
+  if (window._logEvent && window._analytics) {
+    window._logEvent(window._analytics, 'share', {
+      method: method,
+      content_type: 'matchday_plan'
+    });
+  }
+}
+
+// ─── Toast ──────────────────────────────────────────────────────────────────
+var toastTimer;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+// ─── Share ──────────────────────────────────────────────────────────────────
+function getShareText(A, B, pitches, nameA, nameB) {
+  var home = nameA || 'Home';
+  var away = nameB || 'Away';
+  return home + ' ' + A + ' v ' + B + ' ' + away + ' — ' + pitches + ' ' + (pitches === 1 ? 'pitch' : 'pitches') + ' needed. Planned with FutureFit 3v3 Matchday Planner.';
+}
+
+function doShare(A, B, pitches, nameA, nameB) {
+  var text = getShareText(A, B, pitches, nameA, nameB);
+  var url = 'https://first3things.github.io/futurefit/';
+
+  if (navigator.share) {
+    navigator.share({ title: '3v3 Matchday Plan', text: text, url: url })
+      .then(function(){ trackShare('native'); })
+      .catch(function(){});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text + ' ' + url).then(function(){
+      showToast('Copied to clipboard ✓');
+      trackShare('clipboard');
+    });
+  } else {
+    // Fallback: open SMS/email
+    window.location.href = 'sms:?body=' + encodeURIComponent(text + ' ' + url);
+    trackShare('sms_fallback');
+  }
+}
+
+// ─── Game time calculator ────────────────────────────────────────────────────
+// Rules:
+//   - Game duration: 6–10 min (FA hard limits)
+//   - Total playing time per child: 30–40 min (FA hard limits)
+//   - Rotations = how many games each child plays
+//   - In a full carousel, rotations = pitches (every team plays every other)
+//   - If 6 min × pitches > 40 min, reduce rotations to stay within 40 min hard cap
+//   - Target the 35 min midpoint; surface rotations clearly
+var GT_MIN = 6, GT_MAX = 10, PT_MIN = 30, PT_MAX = 40, PT_TARGET = 35;
+
+function calcGameTime(pitches) {
+  if (!pitches || pitches < 1) return null;
+
+  // Max rotations allowed by the 40 min hard cap at minimum game time
+  var maxRotations = Math.floor(PT_MAX / GT_MIN);  // = 6
+  var rotations = Math.min(pitches, maxRotations);
+  var fullCarousel = (rotations === pitches);
+
+  // Find the best game duration for these rotations targeting 35 min
+  var idealMins = Math.round(PT_TARGET / rotations);
+  var mins = Math.min(GT_MAX, Math.max(GT_MIN, idealMins));
+  var totalMins = mins * rotations;
+
+  // Check if total is within the hard 30–40 min band
+  var totalInRange = (totalMins >= PT_MIN && totalMins <= PT_MAX);
+  var gameInRange  = (mins >= GT_MIN && mins <= GT_MAX);
+
+  return {
+    mins: mins,
+    rotations: rotations,
+    pitches: pitches,
+    fullCarousel: fullCarousel,
+    totalMins: totalMins,
+    totalInRange: totalInRange,
+    gameInRange: gameInRange
+  };
+}
+
+// ─── Timer engine ────────────────────────────────────────────────────────────
+var timer = {
+  duration: 8 * 60,   // seconds — updated when game time is calculated
+  remaining: 8 * 60,
+  running: false,
+  interval: null,
+  ctx: null           // AudioContext, created on first user interaction
+
+};
+
+function timerFmt(secs) {
+  var m = Math.floor(secs / 60);
+  var s = secs % 60;
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function timerState() {
+  var pct = timer.duration > 0 ? (timer.remaining / timer.duration) * 100 : 0;
+  var cls = '';
+  if (timer.remaining <= 30) cls = 'danger';
+  else if (timer.remaining <= 60) cls = 'warning';
+  return { pct: pct, cls: cls };
+}
+
+function timerUpdateUI() {
+  var face = document.getElementById('timerFace');
+  var bar = document.getElementById('timerBar');
+  var startBtn = document.getElementById('timerStart');
+  var resetBtn = document.getElementById('timerReset');
+  if (!face) return;
+
+  var st = timerState();
+  face.textContent = timerFmt(timer.remaining);
+  face.className = 'timer-face' + (st.cls ? ' ' + st.cls : '');
+  bar.style.width = st.pct + '%';
+  bar.className = 'timer-progress-bar' + (st.cls ? ' ' + st.cls : '');
+
+  if (startBtn) {
+    var done = (timer.remaining === 0 && !timer.running);
+    if (done) {
+      startBtn.className = 'timer-btn reset';
+      startBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.32"/></svg> Reset';
+      startBtn.onclick = timerReset;
+    } else if (timer.running) {
+      startBtn.className = 'timer-btn pause';
+      startBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause';
+      startBtn.onclick = timerPause;
+    } else {
+      startBtn.className = 'timer-btn start';
+      startBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg> ' + (timer.remaining < timer.duration ? 'Resume' : 'Start');
+      startBtn.onclick = timerStart;
+    }
+  }
+}
+
+function whistleSound() {
+  try {
+    if (!timer.ctx) timer.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var ctx = timer.ctx;
+
+    function play() {
+      var now = ctx.currentTime;
+
+      // pitchEnd: optional final pitch to ramp to at the end (for the rising third peep)
+      function blast(startT, dur, pitchEnd) {
+        var osc = ctx.createOscillator();
+        var oscGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2700, now + startT);
+        osc.frequency.linearRampToValueAtTime(2900, now + startT + 0.04);
+
+        // Third peep: hold steady then push up sharply in the final third
+        if (pitchEnd) {
+          osc.frequency.setValueAtTime(2900, now + startT + dur * 0.6);
+          osc.frequency.exponentialRampToValueAtTime(pitchEnd, now + startT + dur - 0.04);
+        }
+
+        // LFO — pea wobble
+        var lfo = ctx.createOscillator();
+        var lfoGain = ctx.createGain();
+        lfo.type = 'sine';
+        lfo.frequency.setValueAtTime(18, now + startT);
+        lfoGain.gain.setValueAtTime(110, now + startT);
+        // Reduce wobble depth during the pitch rise so the sweep reads clearly
+        if (pitchEnd) {
+          lfoGain.gain.linearRampToValueAtTime(40, now + startT + dur - 0.05);
+        }
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+
+        // Noise — air/breath texture
+        var bufSize = Math.ceil(ctx.sampleRate * (dur + 0.15));
+        var buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for (var i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+        var noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        var noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.setValueAtTime(2800, now + startT);
+        if (pitchEnd) noiseFilter.frequency.exponentialRampToValueAtTime(pitchEnd * 0.95, now + startT + dur - 0.04);
+        noiseFilter.Q.setValueAtTime(8, now + startT);
+        var noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.07, now + startT);
+        // Slight noise swell on third peep — more air pushing through
+        if (pitchEnd) noiseGain.gain.linearRampToValueAtTime(0.11, now + startT + dur * 0.7);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+
+        // Amplitude envelope
+        oscGain.gain.setValueAtTime(0, now + startT);
+        oscGain.gain.linearRampToValueAtTime(0.45, now + startT + 0.015);
+        oscGain.gain.setValueAtTime(0.45, now + startT + dur - 0.03);
+        oscGain.gain.linearRampToValueAtTime(0, now + startT + dur);
+
+        osc.connect(oscGain);
+        oscGain.connect(ctx.destination);
+
+        osc.start(now + startT);   osc.stop(now + startT + dur + 0.05);
+        lfo.start(now + startT);   lfo.stop(now + startT + dur + 0.05);
+        noise.start(now + startT); noise.stop(now + startT + dur + 0.05);
+      }
+
+      // Vibrate in sync with the three peeps
+      if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 700]);
+
+      // peep (0.25s) — peep (0.25s) — peeeeep (0.7s, steady)
+      blast(0,    0.25);
+      blast(0.42, 0.25);
+      blast(0.84, 0.7);
+    }
+
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(play);
+    } else {
+      play();
+    }
+  } catch(e) {}
+}
+
+function timerStart() {
+  // Initialise AudioContext on user gesture (required by browsers)
+  if (!timer.ctx) {
+    try { timer.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  if (timer.remaining <= 0) timerReset();
+  timer.running = true;
+  timer.interval = setInterval(function() {
+    timer.remaining = Math.max(0, timer.remaining - 1);
+    timerUpdateUI();
+    if (timer.remaining === 0) {
+      timer.running = false;
+      clearInterval(timer.interval);
+      whistleSound();
+      // Vibrate on mobile if available
+      timerUpdateUI();
+      if (window._logEvent && window._analytics) {
+        window._logEvent(window._analytics, 'timer_complete', { duration_mins: Math.round(timer.duration / 60) });
+      }
+    }
+  }, 1000);
+  timerUpdateUI();
+}
+
+function timerPause() {
+  timer.running = false;
+  clearInterval(timer.interval);
+  timerUpdateUI();
+}
+
+function timerToggle() {
+  if (timer.running) timerPause(); else timerStart();
+}
+
+function timerReset() {
+  timer.running = false;
+  clearInterval(timer.interval);
+  timer.remaining = timer.duration;
+  timerUpdateUI();
+}
+
+function timerSetDuration(mins) {
+  var wasRunning = timer.running;
+  timerPause();
+  timer.duration = mins * 60;
+  timer.remaining = timer.duration;
+  if (wasRunning) timerStart();
+  else timerUpdateUI();
+}
+
+function timerAdjust(delta) {
+  var adjEl = document.getElementById('timerAdjVal');
+  if (!adjEl) return;
+  var cur = parseInt(adjEl.dataset.mins || timer.duration / 60, 10);
+  var next = Math.min(10, Math.max(6, cur + delta));
+  adjEl.dataset.mins = next;
+  adjEl.textContent = next + ' min';
+  timerSetDuration(next);
+}
+
+// ─── Render ──────────────────────────────────────────────────────────────────
+var lastPlanA = 0, lastPlanB = 0, lastPitches = 0;
+
+function buildGameTimeCard(pitches) {
+  var gt = calcGameTime(pitches);
+  if (!gt) return '';
+
+  // Update timer duration to match recommendation only when not mid-count
+  if (!timer.running && timer.remaining === timer.duration) {
+    timer.duration = gt.mins * 60;
+    timer.remaining = timer.duration;
+  } else if (!timer.running) {
+    timer.duration = gt.mins * 60;
+  }
+
+  var adjMins = (!timer.running && timer.duration !== gt.mins * 60)
+    ? Math.round(timer.duration / 60) : gt.mins;
+
+  // Warning if rotations are reduced (not a full carousel)
+  var warnHtml = '';
+  if (!gt.fullCarousel) {
+    warnHtml = '<div class="gametime-warn">' +
+      '<strong>Rotations reduced to ' + gt.rotations + '</strong> — with ' + pitches + ' pitches, playing all ' + pitches + ' rotations at 6 min would give ' + (pitches * 6) + ' min per player, exceeding the FA&rsquo;s 40 min hard cap. ' +
+      'Use <strong>' + gt.rotations + ' rotations</strong> so teams play <strong>' + gt.rotations + ' games each</strong> — not every team will play every other. Total playing time: ~' + gt.totalMins + ' min.' +
+    '</div>';
+  }
+
+  return '<div class="gametime-card">' +
+    '<div class="gametime-head">' +
+      '<span class="gametime-title">Game time &amp; rotations</span>' +
+    '</div>' +
+    '<div class="gametime-rec">' +
+      '<span class="gametime-num">' + gt.mins + '</span>' +
+      '<span class="gametime-unit">min</span>' +
+    '</div>' +
+    '<div class="gametime-range">per game · ' + gt.rotations + ' rotation' + (gt.rotations !== 1 ? 's' : '') + ' &times; ' + gt.mins + ' min = ~' + gt.totalMins + ' min per player</div>' +
+    '<div class="gametime-meta">' +
+      '<span class="gametime-chip">Game time <b>' + GT_MIN + '–' + GT_MAX + '</b> min</span>' +
+      '<span class="gametime-chip">Playing time <b>' + PT_MIN + '–' + PT_MAX + '</b> min</span>' +
+      '<span class="gametime-chip"><b>' + gt.rotations + '</b> rotation' + (gt.rotations !== 1 ? 's' : '') + (gt.fullCarousel ? ' · full carousel' : ' · reduced') + '</span>' +
+    '</div>' +
+    warnHtml +
+    '<div class="timer-section">' +
+      '<div class="timer-label">Countdown timer</div>' +
+      '<div class="timer-display">' +
+        '<span class="timer-face" id="timerFace">' + timerFmt(timer.remaining) + '</span>' +
+        '<div class="timer-controls">' +
+          '<button class="timer-btn start" id="timerStart" aria-label="Start timer">' +
+            '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg> Start' +
+          '</button>' +
+          '<button class="timer-btn reset" id="timerReset" aria-label="Reset timer">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.32"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="timer-adj">' +
+        '<span class="timer-adj-label">Adjust:</span>' +
+        '<button class="timer-adj-btn" id="timerAdjDn" aria-label="Decrease game time">&minus;</button>' +
+        '<span class="timer-adj-val" id="timerAdjVal" data-mins="' + adjMins + '">' + adjMins + ' min</span>' +
+        '<button class="timer-adj-btn" id="timerAdjUp" aria-label="Increase game time">+</button>' +
+        '<button class="timer-btn reset" id="whistlePreview" aria-label="Preview whistle sound" style="margin-left:auto;height:34px;padding:0 12px;font-size:.78rem">🎵 Test whistle</button>' +
+      '</div>' +
+      '<div class="timer-progress"><div class="timer-progress-bar" id="timerBar" style="width:100%"></div></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function render(){
+  var A = Math.max(0, parseInt(document.getElementById('inA').value || 0, 10));
+  var B = Math.max(0, parseInt(document.getElementById('inB').value || 0, 10));
+  var nameA = document.getElementById('nameA').value.trim();
+  var nameB = document.getElementById('nameB').value.trim();
+  var homeLabel = nameA || 'Home';
+  var awayLabel = nameB || 'Away';
+  var total = A + B;
+  var el = document.getElementById('result');
+
+  saveState();
+
+  if (total < 2) {
+    el.innerHTML = '<div class="warn" role="status">Add at least <strong>2 players</strong> in total to build a matchday plan.</div>';
+    return;
+  }
+
+  var b = buildPitches(A, B);
+  if (!b) {
+    el.innerHTML = '<div class="warn">No valid arrangement for ' + total + ' players. Try adding or removing a player.</div>';
+    return;
+  }
+
+  var pitches = b.games.length, stars = b.mixed;
+  var tiny = b.games.filter(isTiny).length;
+  var notFull = b.games.filter(function(g){ return !(g.sides[0].size === 3 && g.sides[1].size === 3); }).length;
+
+  // Track plan if numbers changed
+  if (A !== lastPlanA || B !== lastPlanB) {
+    lastPlanA = A; lastPlanB = B; lastPitches = pitches;
+    trackPlan(A, B, pitches, stars);
+  }
+
+  var cards = '';
+  b.games.forEach(function(g, i){
+    var tny = isTiny(g);
+    var fmt = fmtName(g);
+    var srText = 'Pitch ' + (i+1) + ', ' + g.sides[0].size + ' versus ' + g.sides[1].size + (tny ? ', smaller game' : '') + '.';
+    cards += '<div class="pitch' + (tny ? ' tiny' : '') + '" role="group" aria-label="' + srText + '">' +
+      '<div class="pitchhead"><span class="pno">Pitch ' + (i+1) + '</span>' +
+        '<span class="fmt">' + (tny ? '<span class="fmt-ic" aria-hidden="true">&#9650;</span> ' : '') + fmt + '</span></div>' +
+      '<div class="pitchbody">' + teamBlock(g.sides[0]) + '<span class="vs" aria-hidden="true">v</span>' + teamBlock(g.sides[1]) + '</div></div>';
   });
 
-  var tinyNote = tiny? '<p class="note tiny-note">A <strong>1v1</strong> or <strong>2v1</strong> is included (shown in amber). It&rsquo;s perfectly playable and keeps everyone involved, though a fuller game is preferable where the numbers allow.</p>' : '';
+  var tinyNote = tiny ? '<p class="note tiny-note">A <strong>1v1</strong> or <strong>2v1</strong> is included (shown in amber). It&rsquo;s perfectly playable and keeps everyone involved, though a fuller game is preferable where the numbers allow.</p>' : '';
 
-  el.innerHTML=
-    '<div class="hero"><div class="pitchcount">'+
-    '<span class="bignum">'+pitches+'</span>'+
-    '<span class="pitchlabel">'+(pitches===1?'Pitch':'Pitches')+'<span class="l2">needed</span></span>'+
-    '</div>'+
-    '<div class="meta">'+
-    '<span class="chip"><b>'+total+'</b> players</span>'+
-    '<span class="chip"><b>'+stars+'</b> superstar '+(stars===1?'team':'teams')+'</span>'+
-    (notFull?'<span class="chip"><b>'+notFull+'</b> not full 3v3</span>':'<span class="chip">All full 3v3</span>')+
-    '</div></div>'+
-    '<h2>The games</h2><div class="pitches">'+cards+'</div>'+
-    tinyNote+
-    '<h2>3v3 essentials</h2>'+
-    '<div class="facts">'+
-    '<div class="fact"><span class="fact-k">Pitch</span><span class="fact-v">15 &times; 10m</span><span class="fact-s">up to 20 &times; 15m</span></div>'+
-    '<div class="fact"><span class="fact-k">Goals</span><span class="fact-v">120 &times; 75cm</span><span class="fact-s">4 &times; 2.5ft</span></div>'+
-    '<div class="fact"><span class="fact-k">Ball</span><span class="fact-v">Size 3</span><span class="fact-s">no goalkeepers</span></div>'+
-    '<div class="fact"><span class="fact-k">Each game</span><span class="fact-v">6&ndash;10 min</span><span class="fact-s">carousel rotate</span></div>'+
-    '<div class="fact"><span class="fact-k">Playing time</span><span class="fact-v">30&ndash;40 min</span><span class="fact-s">per player</span></div>'+
-    '</div>'+
-    '<p class="note">No substitutes — every player is on a pitch. <span style="color:var(--clubA);font-weight:700">H</span> = Home player, <span style="color:var(--clubB);font-weight:700">A</span> = Away player. A <strong>superstar team</strong> mixes both clubs. Where numbers don&rsquo;t divide neatly, smaller or uneven games are fine under FA FutureFit guidance — the main thing is that everyone plays.</p>';
+  var u = getUsage();
+
+  el.innerHTML =
+    '<div class="hero">' +
+      '<div class="pitchcount">' +
+        '<span class="bignum">' + pitches + '</span>' +
+        '<span class="pitchlabel">' + (pitches === 1 ? 'Pitch' : 'Pitches') + '<span class="l2">needed</span></span>' +
+      '</div>' +
+      '<div class="meta">' +
+        '<span class="chip"><b>' + total + '</b> players</span>' +
+        '<span class="chip"><b>' + stars + '</b> superstar ' + (stars === 1 ? 'team' : 'teams') + '</span>' +
+        (notFull ? '<span class="chip"><b>' + notFull + '</b> not full 3v3</span>' : '<span class="chip">All full 3v3</span>') +
+      '</div>' +
+
+    '</div>' +
+    buildGameTimeCard(pitches) +
+    '<h2>The games</h2><div class="pitches">' + cards + '</div>' +
+    tinyNote +
+
+    '<h2>3v3 essentials</h2>' +
+    '<div class="facts">' +
+      '<div class="fact"><span class="fact-k">Pitch</span><span class="fact-v">15 &times; 10m</span><span class="fact-s">up to 20 &times; 15m</span></div>' +
+      '<div class="fact"><span class="fact-k">Goals</span><span class="fact-v">120 &times; 75cm</span><span class="fact-s">4 &times; 2.5ft</span></div>' +
+      '<div class="fact"><span class="fact-k">Ball</span><span class="fact-v">Size 3</span><span class="fact-s">no goalkeepers</span></div>' +
+      '<div class="fact"><span class="fact-k">Each game</span><span class="fact-v">6&ndash;10 min</span><span class="fact-s">carousel rotate</span></div>' +
+      '<div class="fact"><span class="fact-k">Playing time</span><span class="fact-v">30&ndash;40 min</span><span class="fact-s">per player</span></div>' +
+    '</div>' +
+    '<p class="note">No substitutes — every player is on a pitch. <span style="color:var(--clubA);font-weight:700">H</span> = ' + homeLabel + ' player, <span style="color:var(--clubB);font-weight:700">A</span> = ' + awayLabel + ' player. A <strong>superstar team</strong> mixes both clubs. Where numbers don&rsquo;t divide neatly, smaller or uneven games are fine under FA FutureFit guidance — the main thing is that everyone plays.</p>';
+
+  // Wire timer buttons via onclick (safe against duplicate renders)
+  var startBtn2 = document.getElementById('timerStart');
+  var resetBtn = document.getElementById('timerReset');
+  var adjDn = document.getElementById('timerAdjDn');
+  var adjUp = document.getElementById('timerAdjUp');
+  if (resetBtn) resetBtn.onclick = timerReset;
+  if (adjDn) adjDn.onclick = function(){ timerAdjust(-1); };
+  if (adjUp) adjUp.onclick = function(){ timerAdjust(1); };
+  var whistleBtn = document.getElementById('whistlePreview');
+  if (whistleBtn) whistleBtn.onclick = whistleSound;
+  // startBtn onclick is set inside timerUpdateUI
+
+  timerUpdateUI();
 }
+
+// ─── Event listeners ─────────────────────────────────────────────────────────
 document.querySelectorAll('.stepper button').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    var inp=document.getElementById(btn.dataset.t==='A'?'inA':'inB');
-    inp.value=Math.max(0,(parseInt(inp.value||0,10))+parseInt(btn.dataset.d,10));
+  btn.addEventListener('click', function(){
+    var inp = document.getElementById(btn.dataset.t === 'A' ? 'inA' : 'inB');
+    inp.value = Math.max(0, (parseInt(inp.value || 0, 10)) + parseInt(btn.dataset.d, 10));
     render();
   });
 });
-function clamp(id){var el=document.getElementById(id);var v=parseInt(el.value||0,10);if(isNaN(v))v=0;if(v<0)v=0;if(v>200)v=200;if(String(v)!==el.value)el.value=v;return v;}
-['inA','inB'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){clamp(id);render();});});
+
+function clamp(id){
+  var el = document.getElementById(id);
+  var v = parseInt(el.value || 0, 10);
+  if (isNaN(v)) v = 0;
+  if (v < 0) v = 0;
+  if (v > 200) v = 200;
+  if (String(v) !== el.value) el.value = v;
+}
+
+['inA', 'inB'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', function(){ clamp(id); render(); });
+});
+
+['nameA', 'nameB'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', render);
+});
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+loadState();
+trackSession();
 render();
 </script>
 </body>
