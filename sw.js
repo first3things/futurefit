@@ -1,6 +1,6 @@
 // 3v3 Matchday Planner — service worker
 // Bump CACHE when any precached asset changes so clients pick up the new version.
-var CACHE = 'ff-3v3-v1';
+var CACHE = 'ff-3v3-v2';
 var SHELL = [
   './',
   './index.html',
