@@ -945,7 +945,6 @@ function buildGameTimeCard(pitches) {
         '<button class="timer-adj-btn" id="timerAdjDn" aria-label="Decrease game time">&minus;</button>' +
         '<span class="timer-adj-val" id="timerAdjVal" data-mins="' + adjMins + '">' + adjMins + ' min</span>' +
         '<button class="timer-adj-btn" id="timerAdjUp" aria-label="Increase game time">+</button>' +
-        '<button class="timer-btn reset" id="whistlePreview" aria-label="Preview whistle sound" style="margin-left:auto;height:34px;padding:0 12px;font-size:.78rem">🎵 Test whistle</button>' +
       '</div>' +
       '<div class="timer-progress"><div class="timer-progress-bar" id="timerBar" style="width:100%"></div></div>' +
     '</div>' +
@@ -1033,8 +1032,6 @@ function render(){
   if (resetBtn) resetBtn.onclick = timerReset;
   if (adjDn) adjDn.onclick = function(){ timerAdjust(-1); };
   if (adjUp) adjUp.onclick = function(){ timerAdjust(1); };
-  var whistleBtn = document.getElementById('whistlePreview');
-  if (whistleBtn) whistleBtn.onclick = whistleSound;
   // startBtn onclick is set inside timerUpdateUI
 
   timerUpdateUI();
